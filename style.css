@@ -1,0 +1,172 @@
+/* Moonlit Splash — Silver Starlight v1.0.0
+ * Only styles SillyTavern's startup splash when our script has enhanced it.
+ * No image files, external fonts, canvas or per-frame JavaScript.
+ */
+
+#loader.splash-screen.mls-enhanced {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    gap: clamp(22px, 5vh, 54px) !important;
+    box-sizing: border-box;
+}
+
+/* Hide the old spinning gear/star for this splash only. */
+#loader.splash-screen.mls-enhanced #load-spinner {
+    display: none !important;
+}
+
+/* Keep the original logo/constellation; soften its entrance. */
+#loader.splash-screen.mls-enhanced > .splash-logo {
+    position: relative;
+    z-index: 2;
+    width: min(150px, 46%);
+    height: auto;
+    animation: mls-logo-appear 1.4s ease-out both;
+    filter: drop-shadow(0 0 6px rgba(235, 247, 255, 0.20))
+            drop-shadow(0 0 22px rgba(173, 210, 240, 0.10));
+}
+
+#loader.splash-screen.mls-enhanced .mls-text-group {
+    position: relative;
+    z-index: 2;
+    width: min(90vw, 480px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 11px;
+    animation: mls-words-arrive 1.7s cubic-bezier(.22,.9,.32,1) .16s both;
+}
+
+#loader.splash-screen.mls-enhanced .splash-message {
+    margin: 0 !important;
+    opacity: 1 !important;
+    font-family: Georgia, 'Palatino Linotype', 'Times New Roman', serif !important;
+    font-size: clamp(24px, 5.2vw, 32px) !important;
+    font-weight: 400 !important;
+    line-height: 1.25 !important;
+    letter-spacing: .095em !important;
+    text-transform: none !important;
+    color: rgba(248, 249, 253, .95) !important;
+    text-shadow: 0 0 15px rgba(205, 222, 252, .16);
+}
+
+#loader.splash-screen.mls-enhanced .mls-subtitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    width: 100%;
+    color: rgba(206, 221, 239, .72);
+    font-family: Georgia, 'Palatino Linotype', serif;
+    font-size: clamp(11px, 2.6vw, 13px);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: .13em;
+    line-height: 1.6;
+    text-shadow: 0 0 16px rgba(188, 212, 247, .13);
+    white-space: nowrap;
+}
+
+#loader.splash-screen.mls-enhanced .mls-subtitle::before,
+#loader.splash-screen.mls-enhanced .mls-subtitle::after {
+    content: '';
+    display: block;
+    width: clamp(15px, 5vw, 36px);
+    height: 1px;
+    flex: 0 0 auto;
+    opacity: .55;
+    background: linear-gradient(90deg, transparent, rgba(230, 245, 255, .58));
+}
+
+#loader.splash-screen.mls-enhanced .mls-subtitle::after {
+    transform: rotate(180deg);
+}
+
+/* Stars are a non-interactive layer behind the logo and text. */
+#loader.splash-screen.mls-enhanced .mls-starfield {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none !important;
+}
+
+#loader.splash-screen.mls-enhanced .mls-falling-star {
+    position: absolute;
+    top: -7%;
+    left: var(--mls-x);
+    display: block;
+    width: var(--mls-size);
+    height: var(--mls-size);
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    box-shadow: 0 0 5px 1px rgba(249, 253, 255, .65),
+                0 0 12px 2px rgba(189, 221, 252, .25);
+    animation: mls-fall var(--mls-duration) linear var(--mls-delay) infinite;
+}
+
+/* A very fine light trail above the star, like silver thread. */
+#loader.splash-screen.mls-enhanced .mls-falling-star::after {
+    content: '';
+    position: absolute;
+    bottom: 55%;
+    left: 50%;
+    width: 1px;
+    height: var(--mls-trail);
+    transform: translateX(-50%) rotate(12deg);
+    transform-origin: bottom center;
+    background: linear-gradient(0deg,
+        rgba(237, 247, 255, .66) 0%,
+        rgba(200, 227, 253, .25) 38%,
+        rgba(200, 227, 253, 0) 100%);
+}
+
+#loader.splash-screen.mls-enhanced .mls-falling-star.mls-comet {
+    box-shadow: 0 0 7px 1px rgba(248, 254, 255, .86),
+                0 0 19px 3px rgba(174, 219, 255, .30);
+}
+
+@keyframes mls-fall {
+    0%   { transform: translate3d(0, -3vh, 0); opacity: 0; }
+    9%   { opacity: var(--mls-opacity); }
+    65%  { opacity: var(--mls-opacity); }
+    88%  { opacity: calc(var(--mls-opacity) * .70); }
+    100% { transform: translate3d(var(--mls-drift), 115dvh, 0); opacity: 0; }
+}
+
+@keyframes mls-logo-appear {
+    from { opacity: 0; transform: translateY(7px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes mls-words-arrive {
+    from { opacity: 0; transform: translateY(14px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Respect OS-level reduced motion preferences; no falling animation. */
+@media (prefers-reduced-motion: reduce) {
+    #loader.splash-screen.mls-enhanced .mls-falling-star {
+        animation: none !important;
+        opacity: 0 !important;
+    }
+    #loader.splash-screen.mls-enhanced > .splash-logo,
+    #loader.splash-screen.mls-enhanced .mls-text-group {
+        animation: none !important;
+        opacity: 1;
+        filter: none;
+    }
+}
+
+@media (max-width: 720px) {
+    #loader.splash-screen.mls-enhanced {
+        gap: clamp(21px, 4vh, 38px) !important;
+    }
+    #loader.splash-screen.mls-enhanced .mls-subtitle {
+        letter-spacing: .085em;
+        gap: 7px;
+    }
+}

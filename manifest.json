@@ -1,0 +1,17 @@
+{
+  "display_name": "Moonlit Splash — Silver Starlight",
+  "loading_order": 0,
+  "requires": [],
+  "optional": [],
+  "dependencies": [],
+  "js": "index.js",
+  "css": "style.css",
+  "author": "nothingsuspiciousright",
+  "version": "1.0.0",
+  "homePage": "https://github.com/nothingsuspiciousright/ST-Moonlit-Splash",
+  "auto_update": true,
+  "hooks": {
+    "activate": "onActivate",
+    "disable": "onDisable"
+  }
+}
