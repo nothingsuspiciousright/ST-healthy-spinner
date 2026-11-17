@@ -1,13 +1,16 @@
 /**
  * Moonlit Splash — Silver Starlight
  * Lightweight startup splash enhancement for SillyTavern.
- * Does not replace the user's existing splash logo or modify SillyTavern core files.
+ * Replaces only the default SillyTavern logo with a silver constellation.
+ * Existing custom splash logos are preserved; no core files are modified.
  */
 
 const SPLASH_SELECTOR = '#loader.splash-screen';
 const ACTIVE_CLASS = 'mls-enhanced';
 let startupObserver = null;
 let observerTimeout = null;
+let modifiedLogo = null;
+let originalLogoSrc = null;
 
 // A reproducible layout avoids sudden jumping when resize/repaints happen.
 function seededRandom(seed) {
@@ -58,6 +61,53 @@ function makeStarfield() {
     return field;
 }
 
+// Tiny self-contained SVG: no file paths, fetches, image dependencies or external fonts.
+const CONSTELLATION_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150" fill="none">
+  <defs>
+    <filter id="silverGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g stroke="#e4effb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".83" filter="url(#silverGlow)">
+    <path d="M38 48 L77 31 L111 61 L148 39 M38 48 L56 98 L86 127 L133 100 L111 61"/>
+  </g>
+  <g fill="#f6faff" filter="url(#silverGlow)">
+    <circle cx="38" cy="48" r="3.2"/><circle cx="77" cy="31" r="3"/>
+    <circle cx="111" cy="61" r="3.9"/><circle cx="148" cy="39" r="3"/>
+    <circle cx="56" cy="98" r="3"/><circle cx="86" cy="127" r="3.5"/>
+    <circle cx="133" cy="100" r="3.1"/>
+  </g>
+  <g fill="#e2edf9" opacity=".65">
+    <circle cx="166" cy="91" r="1.3"/><circle cx="45" cy="132" r="1.2"/>
+    <circle cx="127" cy="21" r="1.1"/>
+  </g>
+</svg>`;
+
+function replaceDefaultLogo(splash) {
+    const logo = splash.querySelector('img.splash-logo');
+    if (!logo) return;
+
+    // Keep any user-installed custom constellation or alternate logo intact.
+    const src = logo.getAttribute('src') || '';
+    const isDefaultSTLogo = /(?:^|\/)img\/logo\.png(?:\?.*)?$/i.test(src);
+    if (!isDefaultSTLogo) return;
+
+    if (modifiedLogo && modifiedLogo !== logo) {
+        modifiedLogo = null;
+        originalLogoSrc = null;
+    }
+    if (modifiedLogo !== logo) {
+        originalLogoSrc = src;
+        modifiedLogo = logo;
+    }
+
+    logo.src = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(CONSTELLATION_SVG)}`;
+    logo.alt = 'Silver constellation';
+    logo.setAttribute('aria-label', 'Silver constellation');
+    logo.classList.add('mls-constellation');
+}
+
 function enhanceSplash() {
     const splash = document.querySelector(SPLASH_SELECTOR);
     if (!splash) return false;
@@ -77,10 +127,11 @@ function enhanceSplash() {
     subtitle.textContent = 'gathering silver starlight';
     textGroup.append(subtitle);
 
+    // Replace only SillyTavern's default red logo. Custom logos are untouched.
+    replaceDefaultLogo(splash);
     splash.prepend(makeStarfield());
     splash.classList.add(ACTIVE_CLASS);
 
-    // Existing custom constellation / logo stays exactly as supplied by ST.
     console.debug('[Moonlit Splash] Silver starlight splash enabled.');
     return true;
 }
@@ -125,4 +176,13 @@ export function onDisable() {
     group?.remove();
     splash.querySelector('.mls-starfield')?.remove();
     splash.classList.remove(ACTIVE_CLASS);
+
+    if (modifiedLogo && originalLogoSrc !== null) {
+        modifiedLogo.setAttribute('src', originalLogoSrc);
+        modifiedLogo.alt = 'SillyTavern';
+        modifiedLogo.setAttribute('aria-label', 'SillyTavern Logo');
+        modifiedLogo.classList.remove('mls-constellation');
+    }
+    modifiedLogo = null;
+    originalLogoSrc = null;
 }
