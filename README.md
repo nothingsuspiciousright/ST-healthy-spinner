@@ -1,3 +1,6 @@
+<img width="2469" height="1405" alt="image" src="https://github.com/user-attachments/assets/6a79709a-3c82-436c-a0ef-cc5faf39fa23" />
+
+
 # Moonlit Splash — Silver Starlight ✦
 
 A lightweight, silver-toned startup screen effect for **SillyTavern**.
